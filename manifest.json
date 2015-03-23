@@ -1,0 +1,23 @@
+{
+  "name" : "Auto-recruit",
+  "version" : "0.0.1",
+  "description" : "Add to RecruitBox button for different job boards",
+  "web_accessible_resources": [
+  ],
+  "content_scripts" : [
+    {
+      "matches" : [
+        "*://www.getonbrd.cl/jobs/*/applications/*"
+      ],
+      "js": [ "jquery.min.js", "bootstrap.min.js", "bootbox.min.js", "auto-recruit.js" ],
+      "run_at": "document_end",
+      "all_frames": false
+    }
+  ],
+  "manifest_version": 2,
+  "permissions": [
+    "activeTab",
+    "http://api.recruiterbox.com/",
+    "https://api.recruiterbox.com/"
+  ]
+}
