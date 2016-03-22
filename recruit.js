@@ -1,5 +1,5 @@
 $(document).ready(function() {
-    var apiKey, opening,
+    var apiKey, opening;
     var  REGEXES = {
         "www.getonbrd.cl": "(//.*/jobs/[^/]+)"
     };
@@ -68,7 +68,7 @@ $(document).ready(function() {
                 headers: {
                     "Authorization": "Basic " + btoa(apiKey + ":")
                 },
-                error: function(xhr, status, error) { 
+                error: function(xhr, status, error) {
                     console.error("Auto-recruit: Opening listing failed");
                     console.log(status, error);
                 },
@@ -92,16 +92,38 @@ $(document).ready(function() {
     function applyForOpening(opening) {
         console.log("Applying to opening", opening.title);
         var form = { fields: [], source: window.location.hostname};
-        var $info =  $(".webpro_info .col-right");
-        var names = $info.find("h3 > strong").text().split(" ");
+        var $info =  $(".job-application-modal .sidebar");
+        var names = $info.find("h2").text().split(" ");
         if (names.length == 1) {
             names.push("");
         }
 
         addToForm(form, "candidate_first_name", names.shift());
         addToForm(form, "candidate_last_name", names.join(" "));
-        addToForm(form, "candidate_email", $info.find("a[href^=\"mailto:\"]").text());
         addToForm(form, "cover_letter", $(".application").text());
+
+        var email = $info.find("a[href^=\"mailto:\"]").text().trim();
+        if(validateEmail(email)) {
+            addToForm(form, "candidate_email", email);
+        }
+
+        var url = $info.find("a[href*=\"linkedin\"]").attr("href");
+        if(validateURL(url)) {
+            addToForm(form, "linkedin_profile", url);
+        }
+
+        var url = $info.find("a[href*=\"github\"]").attr("href");
+        if(validateURL(url)) {
+            addToForm(form, "github_profile", url);
+        }
+
+
+        var url = $info.find(".fa-book + a").attr("href");
+        if(validateURL(url)) {
+            addToForm(form, "website_blog_portfolio", url);
+        }
+        console.log(form.fields);
+
         $.ajax(
             "https://api.recruiterbox.com/v1/openings/"+opening.id+"/apply",
             {
@@ -111,13 +133,14 @@ $(document).ready(function() {
                 },
                 contentType: "application/json",
                 data: JSON.stringify(form),
-                error: function(xhr, status, error) { 
+                error: function(xhr, status, error) {
                     console.error("Auto-recruit: Application failed");
                     console.log(status, error);
                 },
                 success: function(data, status, xhr) {
                     console.log("Auto-recruit: Application succeeded");
                     $("#autorecruit-add").html("Applied").removeClass("teal").off("click");
+                    $("#webpro-contacted input[type=submit]").click();
                 }
             }
         );
@@ -129,10 +152,41 @@ $(document).ready(function() {
         );
     }
 
+    function validateURL(value) {
+        var re = /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i;
+        return re.test(value);
+    }
+
+    function validateEmail(value) {
+        var re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+        return re.test(value);
+    }
+
     console.log("Auto-recruit: API Key:", localStorage["apiKey"]);
     console.log("Auto-recruit: Clear API Key from console with: delete localStorage['apiKey']");
-    var $btn = $("<a id=autorecruit-add>").addClass("btn small teal").html("+ RecruiterBox").css({marginBottom: "8px"});
-    $btn.on("click", sendToRecruiterBox);
-    $("#webpro-contacted").before($btn);
     console.log("Auto-recruit: Loaded");
+    $(document).on("click", "#autorecruit-add", sendToRecruiterBox);
+});
+
+
+var MutationObserver = window.MutationObserver || window.WebKitMutationObserver || window.MozMutationObserver;
+var list = document.querySelector('body');
+
+var observer = new MutationObserver(function(mutations) {
+    console.log(mutations);
+    mutations.forEach(function(mutation) {
+      if (mutation.type === 'childList') {
+        var $buttons = $(".buttons");
+        if( $("#autorecruit-add").length == 0 ) {
+            var $btn = $("<a id=autorecruit-add>").addClass("btn small teal").html("+ RecruiterBox").css({marginBottom: "8px"});
+            $buttons.append($("<div>").append($btn));
+        }
+      }
+  });
+});
+
+observer.observe(list, {
+    // attributes: true,
+    childList: true,
+    // characterData: true
 });

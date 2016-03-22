@@ -1,15 +1,15 @@
 {
-  "name" : "Auto-recruit",
-  "version" : "0.0.1",
+  "name" : "Recruit",
+  "version" : "0.0.2",
   "description" : "Add to RecruitBox button for different job boards",
   "web_accessible_resources": [
   ],
   "content_scripts" : [
     {
       "matches" : [
-        "*://www.getonbrd.cl/jobs/*/applications/*"
+        "*://www.getonbrd.cl/jobs/*/processes/*"
       ],
-      "js": [ "jquery.min.js", "bootstrap.min.js", "bootbox.min.js", "auto-recruit.js" ],
+      "js": [ "jquery.min.js", "bootstrap.min.js", "bootbox.min.js", "recruit.js" ],
       "run_at": "document_end",
       "all_frames": false
     }
