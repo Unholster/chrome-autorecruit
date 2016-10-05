@@ -102,7 +102,7 @@ $(document).ready(function() {
         addToForm(form, "candidate_last_name", names.join(" "));
         addToForm(form, "cover_letter", $(".application").text());
 
-        var email = $info.find("a[href^=\"mailto:\"]").text().trim();
+        var email = $info.find("a[href^=\"mailto:\"]").attr('href').substring(7);
         if(validateEmail(email)) {
             addToForm(form, "candidate_email", email);
         }
