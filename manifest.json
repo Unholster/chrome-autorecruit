@@ -1,13 +1,14 @@
 {
   "name" : "Recruit",
-  "version" : "0.0.2",
+  "version" : "0.0.3",
   "description" : "Add to RecruitBox button for different job boards",
   "web_accessible_resources": [
   ],
   "content_scripts" : [
     {
       "matches" : [
-        "*://www.getonbrd.cl/jobs/*/processes/*"
+        "*://www.getonbrd.cl/jobs/*",
+        "*://www.getonbrd.com/jobs/*"
       ],
       "js": [ "jquery.min.js", "bootstrap.min.js", "bootbox.min.js", "recruit.js" ],
       "run_at": "document_end",

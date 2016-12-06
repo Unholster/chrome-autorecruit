@@ -1,7 +1,8 @@
 $(document).ready(function() {
     var apiKey, opening;
     var  REGEXES = {
-        "www.getonbrd.cl": "(//.*/jobs/[^/]+)"
+        "www.getonbrd.cl": "(//.*/jobs/[^/]+)",
+        "www.getonbrd.com": "(//.*/jobs/[^/]+)"
     };
 
     function sendToRecruiterBox() {
